@@ -1,0 +1,145 @@
+
+node{
+    
+    def mavenHome=tool name:'maven 3.6.3'
+    stage('CheckoutCode'){
+        git credentialsId: 'c1890328-7123-4d85-93ae-76eaf1c83409', url: 'https://github.com/devopsupendratraining/mithuntechno.git'
+    }
+     stage('Build')
+     {
+         sh "${mavenHome}/bin/mvn clean package"
+     }
+	 stage('ExecuteSonarQube'){
+         sh "${mavenHome}/bin/mvn sonar:sonar package"
+     }
+    stage('upload artifact into sonatype nexus'){
+         sh "${mavenHome}/bin/mvn sonar:sonar deploy"
+    }
+     
+    stage('Deploy'){
+       sshagent(['44a9ae86-b9b6-4b78-9098-9096d9298f68']) {
+         
+         ssh "scp -o StrictHostKeyChecking=no ec2-user@3.17.72.137:/opt/apache-tomcat-9.0.38/webapps"
+        }
+    }
+    
+}
+
+
+
+
+logs
+
+
+Started by user upendra
+Running in Durability level: MAX_SURVIVABILITY
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/edoc-scripted-pipeline
+[Pipeline] {
+[Pipeline] tool
+[Pipeline] stage
+[Pipeline] { (CheckoutCode)
+[Pipeline] git
+The recommended git tool is: NONE
+using credential c1890328-7123-4d85-93ae-76eaf1c83409
+ > git rev-parse --is-inside-work-tree # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/devopsupendratraining/mithuntechno.git # timeout=10
+Fetching upstream changes from https://github.com/devopsupendratraining/mithuntechno.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.18.4'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --progress -- https://github.com/devopsupendratraining/mithuntechno.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+Checking out Revision f5b7f674b8ddaa217420edf619196837753ae71e (refs/remotes/origin/master)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f f5b7f674b8ddaa217420edf619196837753ae71e # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git branch -D master # timeout=10
+ > git checkout -b master f5b7f674b8ddaa217420edf619196837753ae71e # timeout=10
+Commit message: "Update pom.xml"
+ > git rev-list --no-walk f5b7f674b8ddaa217420edf619196837753ae71e # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] sh
++ /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven_3.6.3/bin/mvn clean package
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.mt:maven-web-application:war:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: javax.servlet:javax.servlet-api:jar -> duplicate declaration of version 3.1.0 @ line 87, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] --------------------< com.mt:maven-web-application >--------------------
+[INFO] Building maven-web-application 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ maven-web-application ---
+[INFO] Deleting /var/lib/jenkins/workspace/edoc-scripted-pipeline/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ maven-web-application ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /var/lib/jenkins/workspace/edoc-scripted-pipeline/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.3:compile (default-compile) @ maven-web-application ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /var/lib/jenkins/workspace/edoc-scripted-pipeline/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ maven-web-application ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /var/lib/jenkins/workspace/edoc-scripted-pipeline/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.3:testCompile (default-testCompile) @ maven-web-application ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ maven-web-application ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-war-plugin:2.2:war (default-war) @ maven-web-application ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [maven-web-application] in [/var/lib/jenkins/workspace/edoc-scripted-pipeline/target/maven-web-application]
+[INFO] Processing war project
+[INFO] Copying webapp resources [/var/lib/jenkins/workspace/edoc-scripted-pipeline/src/main/webapp]
+[INFO] Webapp assembled in [59 msecs]
+[INFO] Building war: /var/lib/jenkins/workspace/edoc-scripted-pipeline/target/maven-web-application.war
+[INFO] WEB-INF/web.xml already added, skipping
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.081 s
+[INFO] Finished at: 2020-10-06T10:54:09Z
+[INFO] ------------------------------------------------------------------------
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy)
+[Pipeline] sshagent
+[ssh-agent] Using credentials ec2-user
+[ssh-agent] Looking for ssh-agent implementation...
+[ssh-agent]   Exec ssh-agent (binary ssh-agent on a remote machine)
+$ ssh-agent
+SSH_AUTH_SOCK=/tmp/ssh-JhqsnTfqOGaP/agent.3134
+SSH_AGENT_PID=3137
+Running ssh-add (command line suppressed)
+Identity added: /var/lib/jenkins/workspace/edoc-scripted-pipeline@tmp/private_key_8223086883661564401.key (/var/lib/jenkins/workspace/edoc-scripted-pipeline@tmp/private_key_8223086883661564401.key)
+[ssh-agent] Started.
+[Pipeline] {
+[Pipeline] }
+$ ssh-agent -k
+unset SSH_AUTH_SOCK;
+unset SSH_AGENT_PID;
+echo Agent pid 3137 killed;
+[ssh-agent] Stopped.
+[Pipeline] // sshagent
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

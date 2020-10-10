@@ -28,7 +28,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 	</properties>
-	<!-- add dependency testt-->
+	<!-- add dependency -->
 	<dependencies>
 		
 		<dependency>
